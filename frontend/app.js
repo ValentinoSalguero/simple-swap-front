@@ -1,13 +1,15 @@
-const tokenA = "0x0165878A594ca255338adfa4d48449f69242Eb8F";
-const tokenB = "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853";
-const simpleSwapAddress = "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6";
+const tokenA = "0xEd10552af215D5D79C4DDF09B681Ef5f12dA583B";
+const tokenB = "0xF2D56ad8054FBAF63C2ba905e629168B8d417d3c";
+const simpleSwapAddress = "0x6E9a1094F91d7aFD3232305E0b28427A2d680309";
 
+// ABI mínimo para el contrato SimpleSwap, solo las funciones necesarias para el frontend.
 const simpleSwapABI = [
   "function addLiquidity(address tokenA, address tokenB, uint amountADesired, uint amountBDesired, uint amountAMin, uint amountBMin, address to, uint deadline) external returns (uint,uint,uint)",
   "function swapExactTokensForTokens(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline) external returns (uint[] memory amounts)",
   "function getPrice(address tokenA, address tokenB) external view returns (uint)"
 ];
 
+// ABI mínimo para tokens ERC20, solo las funciones necesarias.
 const erc20ABI = [
   "function approve(address spender, uint amount) external returns (bool)",
   "function decimals() view returns (uint8)",
@@ -23,20 +25,21 @@ let tokenBContract;
 
 const outputP = document.getElementById("output");
 
-// Muestra mensajes en output con color segun tipo: info, success, error
+// Muestra mensajes en la interfaz de usuario con formato de color.
 function showMessage(msg, type = "info") {
   outputP.style.color = type === "error" ? "red" : type === "success" ? "green" : "black";
   outputP.innerText = msg;
 }
 
-// Valida que el valor sea un número positivo mayor a 0
+// Valida que el valor sea un número positivo.
 function isValidAmount(value) {
   return !isNaN(value) && Number(value) > 0;
 }
 
+// Conecta la billetera del usuario a la DApp.
 async function connectWallet() {
   if (!window.ethereum) {
-    alert("Por favor instala MetaMask");
+    alert("Por favor instala MetaMask para usar esta aplicación.");
     return;
   }
   try {
@@ -50,20 +53,20 @@ async function connectWallet() {
 
     const address = await signer.getAddress();
     document.getElementById("walletAddress").innerText = "Wallet conectada: " + address;
-    showMessage("Wallet conectada correctamente");
+    showMessage("Wallet conectada correctamente.");
   } catch (error) {
     showMessage("Error conectando wallet: " + error.message, "error");
   }
 }
 
+// Aprueba que SimpleSwap gaste una cantidad ilimitada del token del usuario.
 async function approveToken(tokenContract) {
-  // Bloquear botones para evitar doble click
+  // Deshabilita los botones de aprobación para evitar múltiples clics.
   document.getElementById("approveTokenA").disabled = true;
   document.getElementById("approveTokenB").disabled = true;
 
   try {
-    // Solo aprobar, sin mint ni verificación de owner
-    const maxApproval = ethers.constants.MaxUint256;
+    const maxApproval = ethers.constants.MaxUint256; // Cantidad máxima para aprobación ilimitada.
     const tx = await tokenContract.approve(simpleSwapAddress, maxApproval);
     showMessage("Aprobación enviada, esperando confirmación...");
     await tx.wait();
@@ -71,15 +74,15 @@ async function approveToken(tokenContract) {
   } catch (error) {
     showMessage("Error en approve: " + (error.data?.message || error.message), "error");
   } finally {
-    // Habilitar botones
+    // Habilita los botones de aprobación.
     document.getElementById("approveTokenA").disabled = false;
     document.getElementById("approveTokenB").disabled = false;
   }
 }
 
-
+// Agrega liquidez al pool SimpleSwap.
 async function addLiquidity() {
-  document.getElementById("addLiquidityBtn").disabled = true;
+  document.getElementById("addLiquidityBtn").disabled = true; // Deshabilita el botón.
   try {
     const amountADesired = document.getElementById("amountADesired").value;
     const amountBDesired = document.getElementById("amountBDesired").value;
@@ -90,15 +93,16 @@ async function addLiquidity() {
       return;
     }
 
+    // Obtiene los decimales de los tokens para parsear correctamente las cantidades.
     const decimalsA = await tokenAContract.decimals();
     const decimalsB = await tokenBContract.decimals();
 
     const amountADesiredParsed = ethers.utils.parseUnits(amountADesired.toString(), decimalsA);
     const amountBDesiredParsed = ethers.utils.parseUnits(amountBDesired.toString(), decimalsB);
 
-    const amountAMin = 0;
-    const amountBMin = 0;
-    const deadline = Math.floor(Date.now() / 1000) + 1200;
+    const amountAMin = 0; // Se podría hacer configurable en la UI.
+    const amountBMin = 0; // Se podría hacer configurable en la UI.
+    const deadline = Math.floor(Date.now() / 1000) + 1200; // 20 minutos de tolerancia.
 
     const tx = await simpleSwapContract.addLiquidity(
       tokenA,
@@ -113,15 +117,17 @@ async function addLiquidity() {
 
     showMessage("Agregando liquidez, espera confirmación...");
     await tx.wait();
-    showMessage("Liquidez agregada con éxito", "success");
+    showMessage("Liquidez agregada con éxito.", "success");
   } catch (error) {
     showMessage("Error agregando liquidez: " + (error.data?.message || error.message), "error");
   } finally {
-    document.getElementById("addLiquidityBtn").disabled = false;
+    document.getElementById("addLiquidityBtn").disabled = false; // Habilita el botón.
   }
 }
 
+// Realiza un swap de tokens.
 async function swapTokens(amount, path) {
+  // Deshabilita los botones de swap.
   const swapAtoBBtn = document.getElementById("swapAtoB");
   const swapBtoABtn = document.getElementById("swapBtoA");
   swapAtoBBtn.disabled = true;
@@ -133,13 +139,14 @@ async function swapTokens(amount, path) {
       return;
     }
 
+    // Obtiene los decimales del token de entrada para parsear la cantidad.
     const decimals = await (path[0] === tokenA ? tokenAContract : tokenBContract).decimals();
     const amountParsed = ethers.utils.parseUnits(amount.toString(), decimals);
-    const deadline = Math.floor(Date.now() / 1000) + 1200;
+    const deadline = Math.floor(Date.now() / 1000) + 1200; // 20 minutos de tolerancia.
 
     const tx = await simpleSwapContract.swapExactTokensForTokens(
       amountParsed,
-      0,
+      0, // amountOutMin (se podría hacer configurable en la UI)
       path,
       await signer.getAddress(),
       deadline
@@ -151,11 +158,13 @@ async function swapTokens(amount, path) {
   } catch (error) {
     showMessage("Error en swap: " + (error.data?.message || error.message), "error");
   } finally {
+    // Habilita los botones de swap.
     swapAtoBBtn.disabled = false;
     swapBtoABtn.disabled = false;
   }
 }
 
+// Obtiene y muestra el precio de un token en términos de otro.
 async function getPrice(tokenIn, tokenOut) {
   try {
     const price = await simpleSwapContract.getPrice(tokenIn, tokenOut);
@@ -165,6 +174,7 @@ async function getPrice(tokenIn, tokenOut) {
   }
 }
 
+// Asigna los event listeners a los botones.
 document.getElementById("connectWalletBtn").onclick = connectWallet;
 document.getElementById("addLiquidityBtn").onclick = addLiquidity;
 document.getElementById("swapAtoB").onclick = () => {
