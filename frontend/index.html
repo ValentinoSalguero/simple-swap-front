@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>SimpleSwap DApp</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>SimpleSwap DApp</h1>
+
+    <button id="connectWalletBtn" class="btn primary">Conectar Wallet</button>
+    <p id="walletAddress" class="wallet-address">No conectado</p>
+
+    <section>
+      <h3>Aprobar Tokens</h3>
+      <div class="btn-group">
+        <button id="approveTokenA" class="btn secondary">Aprobar Token A</button>
+        <button id="approveTokenB" class="btn secondary">Aprobar Token B</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>Agregar Liquidez</h2>
+      <label>
+        Token A:
+        <input type="number" id="amountADesired" value="10" min="0" step="any" />
+      </label><br/>
+      <label>
+        Token B:
+        <input type="number" id="amountBDesired" value="10" min="0" step="any" />
+      </label><br/>
+      <button id="addLiquidityBtn" class="btn primary">Agregar Liquidez</button>
+    </section>
+
+    <section>
+      <h2>Swap Tokens</h2>
+      <label>
+        Cantidad:
+        <input type="number" id="swapAmount" value="1" min="0" step="any" />
+      </label><br/>
+      <div class="btn-group">
+        <button id="swapAtoB" class="btn secondary">Swap Token A por Token B</button>
+        <button id="swapBtoA" class="btn secondary">Swap Token B por Token A</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>Precio Tokens</h2>
+      <div class="btn-group">
+        <button id="getPriceAinB" class="btn tertiary">Precio Token A en Token B</button>
+        <button id="getPriceBinA" class="btn tertiary">Precio Token B en Token A</button>
+      </div>
+    </section>
+
+    <p id="output" class="output"></p>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
