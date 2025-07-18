@@ -25,8 +25,7 @@ El frontend ha sido desarrollado utilizando **HTML, CSS y JavaScript puro**, gar
 ### 5. Almacenamiento y Despliegue
 * **Repositorio GitHub:** Todo el código fuente, incluyendo los contratos, tests y el frontend, se encuentra alojado en este repositorio de GitHub para su evaluación.
 * **Despliegue del Frontend:** El frontend está desplegado en **GitHub Pages**. Puedes acceder a la aplicación en vivo a través del siguiente enlace:
-    [**AQUÍ VA LA URL DE TU GITHUB PAGES**]
-    *(Si por alguna razón el despliegue no fuera exitoso, se proporcionará un video de demostración de no más de 1 minuto mostrando la funcionalidad).*
+    [https://simpleswap-front-tp4.netlify.app/]
 
 ---
 
@@ -87,8 +86,7 @@ Para ejecutar este proyecto localmente, sigue los siguientes pasos:
 
 ## ✅ Entregables para Evaluación:
 
-* **Enlace al Repositorio en GitHub:** [https://github.com/tu-usuario/tu-repositorio](https://github.com/tu-usuario/tu-repositorio)
-* **URL del Trabajo Desplegado:** [**AQUÍ VA LA URL DE TU GITHUB PAGES**]
-    *(O el enlace al video de 1 minuto mostrando el funcionamiento si el despliegue no fue posible)*
+* **Enlace al Repositorio en GitHub:** [https://github.com/ValentinoSalguero/simple-swap-front]
+* **URL del Trabajo Desplegado:** [https://simpleswap-front-tp4.netlify.app/]
 
 ---
