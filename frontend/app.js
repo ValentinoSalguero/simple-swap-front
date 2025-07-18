@@ -1,4 +1,9 @@
-const contractAddresses = require('./contractsData/contract-addresses.json');
+const contractAddresses = {
+  "TokenA": "0xEd10552af215D5D79C4DDF09B681Ef5f12dA583B",
+  "TokenB": "0xF2D56ad8054FBAF63C2ba905e629168B8d417d3c",
+  "SimpleSwap": "0x6E9a1094F91d7aFD3232305E0b28427A2d680309",
+  "Faucet": "0xd6856E315fF399148E5d03b5605406fc063a9F8E"
+};
 
 const tokenAAddress = contractAddresses.TokenA;
 const tokenBAddress = contractAddresses.TokenB;
