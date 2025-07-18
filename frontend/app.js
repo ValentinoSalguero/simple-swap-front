@@ -64,7 +64,13 @@ function isValidAmount(value) {
 
 // Actualiza los balances de los tokens A y B en la interfaz
 async function updateBalances() {
-    if (signer && tokenAContract && tokenBContract) {
+    // Verificar que los contratos y el signer estén inicializados
+    if (!signer || !tokenAContract || !tokenBContract) {
+      console.log("updateBalances: Signer o contratos no inicializados aún.");
+      return;
+    }
+
+    try {
         const address = await signer.getAddress();
         const balanceA = await tokenAContract.balanceOf(address);
         const balanceB = await tokenBContract.balanceOf(address);
@@ -72,19 +78,39 @@ async function updateBalances() {
         const decimalsA = await tokenAContract.decimals();
         const decimalsB = await tokenBContract.decimals();
 
-        balanceAText.innerText = `Balance Token A: ${ethers.utils.formatUnits(balanceA, decimalsA)}`;
-        balanceBText.innerText = `Balance Token B: ${ethers.utils.formatUnits(balanceB, decimalsB)}`;
-    }
+        if (balanceAText) {
+            balanceAText.innerText = `Balance Token A: ${ethers.utils.formatUnits(balanceA, decimalsA)}`;
+        } else {
+            console.error("Elemento con ID 'balanceA' no encontrado en el DOM.");
+        }
 
-    if (faucetContract) {
-        const [faucetBalanceA, faucetBalanceB] = await faucetContract.getFaucetBalances();
-        const decimalsA = await tokenAContract.decimals();
-        const decimalsB = await tokenBContract.decimals();
-        faucetBalanceAText.innerText = `Faucet TKA: ${ethers.utils.formatUnits(faucetBalanceA, decimalsA)}`;
-        faucetBalanceBText.innerText = `Faucet TKB: ${ethers.utils.formatUnits(faucetBalanceB, decimalsB)}`;
+        if (balanceBText) {
+            balanceBText.innerText = `Balance Token B: ${ethers.utils.formatUnits(balanceB, decimalsB)}`;
+        } else {
+            console.error("Elemento con ID 'balanceB' no encontrado en el DOM.");
+        }
+
+        // Verificar si el contrato Faucet está inicializado para sus balances
+        if (faucetContract) {
+            const [faucetBalanceA, faucetBalanceB] = await faucetContract.getFaucetBalances();
+            if (faucetBalanceAText) {
+                faucetBalanceAText.innerText = `Faucet TKA: ${ethers.utils.formatUnits(faucetBalanceA, decimalsA)}`;
+            } else {
+                console.error("Elemento con ID 'faucetBalanceA' no encontrado en el DOM.");
+            }
+
+            if (faucetBalanceBText) {
+                faucetBalanceBText.innerText = `Faucet TKB: ${ethers.utils.formatUnits(faucetBalanceB, decimalsB)}`;
+            } else {
+                console.error("Elemento con ID 'faucetBalanceB' no encontrado en el DOM.");
+            }
+        } else {
+            console.log("updateBalances: Contrato Faucet no inicializado aún para balances del Faucet.");
+        }
+    } catch (error) {
+        console.error("Error al actualizar balances:", error);
     }
 }
-
 
 // Conecta la billetera del usuario a la DApp.
 async function connectWallet() {
@@ -117,10 +143,10 @@ async function connectWallet() {
             updateBalances();
         } else {
             walletAddressP.innerText = "No conectado";
-            balanceAText.innerText = "Balance Token A: 0";
-            balanceBText.innerText = "Balance Token B: 0";
-            faucetBalanceAText.innerText = "Faucet TKA: 0";
-            faucetBalanceBText.innerText = "Faucet TKB: 0";
+            if (balanceAText) balanceAText.innerText = "Balance Token A: 0";
+            if (balanceBText) balanceBText.innerText = "Balance Token B: 0";
+            if (faucetBalanceAText) faucetBalanceAText.innerText = "Faucet TKA: 0";
+            if (faucetBalanceBText) faucetBalanceBText.innerText = "Faucet TKB: 0";
             showMessage("Wallet desconectada.");
         }
     });
